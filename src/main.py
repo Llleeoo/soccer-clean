@@ -21,17 +21,23 @@ def main_loop():
     ))
 
     # Attacker move
-    # (attention giga thales incoming)
-    # (feat pithagore)
-    # (feat trigonometrie)
-    pose = allies[1].pose
-    pose[0] *= X_MULT
-    rapport = sqrt(ball[0]**2 + ball[1]**2) + ROBOT_RADIUS + BALL_RADIUS
+    pose = (ball[0]*X_MULT, ball[1])
+    hypotenuse = sqrt((constants.field_length/2 - pose[0])**2 + pose[1]**2)
+    rapport = hypotenuse / (hypotenuse + ROBOT_RADIUS + BALL_RADIUS)
     destination = (
-        ball[0] * rapport * X_MULT,
-        -abs(ball[1] * rapport),
-        atan(ball[1]/ball[0])
+        (constants.field_length - ((constants.field_length/2 - pose[0]) * rapport)) * X_MULT,
+        pose[1] * rapport,
+        atan(((constants.field_length/2 - pose[0])*X_MULT)/pose[1])
     )
+
+    pr = allies[1].pose
+    if round(pr[0]*100) == round(destination[0]*100) and round(pr[1]*100) == round(destination[1]*100) and round(pr[3]*10) == round(destination[0]*10):
+        allies[1].kick()
+
+    # If destination is in left or right defense area (extended) OR destination exceed y limit, go in front of our goal
+    if (abs(destination[0]) > (constants.field_length/2) - ROBOT_RADIUS - constants.defense_area_length) or (abs(destination[1] > constants.field_weight/2)):
+        destination[0] = -((constants.field_length/2) - ROBOT_RADIUS - constants.defense_area_length)*X_MULT
+        destination[1] = 0
     
     allies[1].goto(destination)
 

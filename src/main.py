@@ -21,9 +21,6 @@ def main_loop():
     ))
 
     # Attacker move
-    # (attention giga thales incoming)
-    # (feat pithagore)
-    # (feat trigonometrie)
     pose = allies[1].pose
     Y_MULT = 1 if pose[1]>= 0 else -1
     rapport = sqrt((constants.field_length/2 - ball[0]) ** 2 + ball[1] ** 2) + ROBOT_RADIUS + BALL_RADIUS if X_MULT == 1 else sqrt((constants.field_length/2 + ball[0]) ** 2 + ball[1] ** 2) + ROBOT_RADIUS + BALL_RADIUS
@@ -34,8 +31,16 @@ def main_loop():
         angle * np.pi / 180 * -Y_MULT
     )
     
+     # If destination is in left or right defense area (extended) OR destination exceed y limit, go in front of our goal
+    if (abs(destination[0]) > (constants.field_length/2) - ROBOT_RADIUS - constants.defense_area_length) or (abs(destination[1] > constants.field_weight/2)):
+        destination[0] = -((constants.field_length/2) - ROBOT_RADIUS - constants.defense_area_length)*X_MULT
+        destination[1] = 0
+
     allies[1].goto(destination)
 
+        pr = allies[1].pose
+    if round(pr[0]*100) == round(destination[0]*100) and round(pr[1]*100) == round(destination[1]*100) and round(pr[3]*10) == round(destination[0]*10):
+        allies[1].kick()
 
 if __name__ == "__main__":
     client.on_update = main_loop
